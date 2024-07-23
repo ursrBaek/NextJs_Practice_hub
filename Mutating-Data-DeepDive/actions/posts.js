@@ -1,4 +1,5 @@
 "use server";
+import { uploadImage } from "@/lib/cloudinary";
 import { storePost } from "@/lib/posts";
 import { redirect } from "next/navigation";
 
@@ -25,8 +26,18 @@ export async function createPost(prevState, formData) {
     return { errors };
   }
 
+  let imageUrl = "";
+
+  try {
+    imageUrl = await uploadImage(image);
+  } catch (error) {
+    throw new Error(
+      "이미지 업로드에 실패하여 게시물을 생성하지 못했습니다. 잠시 후 다시 시도해주세요."
+    );
+  }
+
   await storePost({
-    imageUrl: "",
+    imageUrl,
     title,
     content,
     userId: 1,
